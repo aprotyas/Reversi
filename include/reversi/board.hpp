@@ -6,9 +6,8 @@
 
 #include "disk.hpp"
 
-class Board
-{
-public:
+class Board {
+ public:
   Board();
 
   std::size_t size() const;
@@ -18,7 +17,7 @@ public:
   Disk& operator()(const std::size_t row, const std::size_t col);
   const Disk& operator()(const std::size_t row, const std::size_t col) const;
 
-private:
+ private:
   std::vector<std::vector<Disk>> m_data;
   constexpr static std::size_t m_size = 8;
 };

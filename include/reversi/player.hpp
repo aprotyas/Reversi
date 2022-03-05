@@ -3,8 +3,7 @@
 #include <string>
 
 class Player {
-public:
-
-private:
+ public:
+ private:
   std::string m_name;
 };
