@@ -1,6 +1,9 @@
-#include "board.hpp"
+#include <cstddef>
+#include <iostream>
+#include <vector>
 
-#include "utils.hpp"
+#include "reversi/board.hpp"
+#include "reversi/utils.hpp"
 
 Board::Board()
     : m_data{std::vector<std::vector<Disk>>(

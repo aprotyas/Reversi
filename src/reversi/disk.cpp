@@ -1,4 +1,6 @@
-#include "disk.hpp"
+#include <iostream>
+
+#include "reversi/disk.hpp"
 
 std::ostream& operator<<(std::ostream& os, const Disk disk) {
   switch (disk) {

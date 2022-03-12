@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 
-#include "disk.hpp"
+#include "reversi/disk.hpp"
 
 class Board {
  public:
