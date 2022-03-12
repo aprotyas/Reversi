@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7...3.22)
+cmake_minimum_required(VERSION 3.11)
 
 project(reversi
   VERSION 0.1
@@ -35,3 +35,10 @@ target_link_libraries(${PROJECT_NAME}_app PRIVATE ${PROJECT_NAME})
 set_property(TARGET ${PROJECT_NAME}_app
   PROPERTY OUTPUT_NAME ${PROJECT_NAME}
 )
+
+if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+  include(CTest)
+endif()
+if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME} AND BUILD_TESTING)
+  add_subdirectory(test)
+endif()
