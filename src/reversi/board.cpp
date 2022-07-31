@@ -1,8 +1,9 @@
+#include "reversi/board.hpp"
+
 #include <cstddef>
 #include <iostream>
 #include <vector>
 
-#include "reversi/board.hpp"
 #include "reversi/utils.hpp"
 
 Board::Board()

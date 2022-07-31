@@ -1,7 +1,8 @@
+#include "reversi/reversi.hpp"
+
 #include <iostream>
 
 #include "reversi/board.hpp"
-#include "reversi/reversi.hpp"
 
 std::ostream& operator<<(std::ostream& os, const Reversi& reversi) {
   os << "--- Reversi state ---\n";

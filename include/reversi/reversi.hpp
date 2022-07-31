@@ -8,13 +8,12 @@
 #include "reversi/player.hpp"
 
 class Reversi {
-public:
+ public:
   Reversi() = default;
   ~Reversi() = default;
   const Board& board() const;
 
-
-private:
+ private:
   Board m_board;
   std::array<Player, 2> m_players;
 };
