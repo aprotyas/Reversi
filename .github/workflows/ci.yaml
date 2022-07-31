@@ -1,0 +1,42 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+  schedule:
+    - cron: '0 0 * * *' # daily at 00:00 UTC
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get -y -qq update
+          sudo apt-get -y --no-install-recommends install \
+            cmake \
+            build-essential
+
+      - name: Create build environment
+        run: cmake -S . -B build -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Test
+        run: ctest --test-dir build/test
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build_folder
+          path: |
+            build/
+            !build/**/*google*
+            !build/**/*gmock*
+            !build/**/*gtest*
+        if: always()
+
