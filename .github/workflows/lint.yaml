@@ -1,0 +1,32 @@
+name: lint
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  clang-format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get -y -qq update
+          sudo apt-get -y --no-install-recommends install clang-format
+
+      - name: Run clang-format
+        shell: bash
+        run: bash format.sh
+
+      - name: Set up git config
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@users.noreply.github.com"
+
+      - name: Commit linting fixes
+        run: |
+          git add .
+          git commit -m "[bot] clang-format lint fixes" || echo "No changes to commit"
