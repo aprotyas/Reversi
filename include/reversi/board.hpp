@@ -10,7 +10,7 @@ class Board {
  public:
   Board();
 
-  std::size_t size() const;
+  constexpr static std::size_t size() { return m_size; }
   std::vector<std::vector<Disk>>& data();
   const std::vector<std::vector<Disk>>& data() const;
 

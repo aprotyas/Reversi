@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "reversi/reversi.cpp"
+#include "reversi/reversi.hpp"
 
 int main() {
   Reversi reversi;

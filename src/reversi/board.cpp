@@ -27,8 +27,6 @@ Board::Board()
   }
 }
 
-std::size_t Board::size() const { return Board::m_size; }
-
 std::vector<std::vector<Disk>>& Board::data() { return m_data; }
 const std::vector<std::vector<Disk>>& Board::data() const { return m_data; }
 
@@ -37,11 +35,11 @@ Disk& Board::operator()(const std::size_t row, const std::size_t col) {
 }
 const Disk& Board::operator()(const std::size_t row,
                               const std::size_t col) const {
-  return Board::operator()(row, col);
+  return m_data.at(row).at(col);
 }
 
 std::ostream& operator<<(std::ostream& os, const Board& board) {
-  os << "Board shape: " << board.size() << " x " << board.size() << '\n';
+  os << "Board shape: " << Board::size() << " x " << Board::size() << '\n';
   for (const auto& row : board.data()) {
     os << row << '\n';
   }

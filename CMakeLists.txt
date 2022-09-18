@@ -20,21 +20,23 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   "$<INSTALL_INTERFACE:include>"
 )
 set_target_properties(${PROJECT_NAME} PROPERTIES
+  CXX_CLANG_TIDY clang-tidy -header-filter=${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp --config-file=${CMAKE_CURRENT_SOURCE_DIR}/.clang-tidy
   CXX_EXTENSIONS OFF
   CXX_STANDARD 17
   CXX_STANDARD_REQUIRED ON
+  EXPORT_COMPILE_COMMANDS ON
 )
 
 add_executable(${PROJECT_NAME}_app src/${PROJECT_NAME}_app.cpp)
 set_target_properties(${PROJECT_NAME}_app PROPERTIES
+  CXX_CLANG_TIDY clang-tidy -header-filter=${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp --config-file=${CMAKE_CURRENT_SOURCE_DIR}/.clang-tidy
   CXX_EXTENSIONS OFF
   CXX_STANDARD 17
   CXX_STANDARD_REQUIRED ON
+  EXPORT_COMPILE_COMMANDS ON
+  OUTPUT_NAME ${PROJECT_NAME}
 )
 target_link_libraries(${PROJECT_NAME}_app PRIVATE ${PROJECT_NAME})
-set_property(TARGET ${PROJECT_NAME}_app
-  PROPERTY OUTPUT_NAME ${PROJECT_NAME}
-)
 
 if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
   include(CTest)
