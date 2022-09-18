@@ -17,11 +17,14 @@ jobs:
         run: |
           sudo apt-get -y -qq update
           sudo apt-get -y --no-install-recommends install \
+            build-essential \
             cmake \
-            build-essential
+            libopengl-dev \
+            libsdl2-dev \
+            ninja-build
 
       - name: Create build environment
-        run: cmake -S . -B build -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo
+        run: cmake -G Ninja -S . -B build -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
       - name: Build
         run: cmake --build build
@@ -35,8 +38,8 @@ jobs:
           name: build_folder
           path: |
             build/
+            !build/**/*imgui*
             !build/**/*google*
             !build/**/*gmock*
             !build/**/*gtest*
         if: always()
-

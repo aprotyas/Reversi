@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.21)
 
 project(reversi
   VERSION 0.1
@@ -27,6 +27,12 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
   EXPORT_COMPILE_COMMANDS ON
 )
 
+# SDL2-OpenGL integration
+find_package(SDL2 REQUIRED)
+find_package(OpenGL REQUIRED)
+
+add_subdirectory(third_party)
+
 add_executable(${PROJECT_NAME}_app src/${PROJECT_NAME}_app.cpp)
 set_target_properties(${PROJECT_NAME}_app PROPERTIES
   CXX_CLANG_TIDY clang-tidy -header-filter=${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp --config-file=${CMAKE_CURRENT_SOURCE_DIR}/.clang-tidy
@@ -36,7 +42,13 @@ set_target_properties(${PROJECT_NAME}_app PROPERTIES
   EXPORT_COMPILE_COMMANDS ON
   OUTPUT_NAME ${PROJECT_NAME}
 )
-target_link_libraries(${PROJECT_NAME}_app PRIVATE ${PROJECT_NAME})
+target_include_directories(${PROJECT_NAME}_app PRIVATE
+  ${imgui_SOURCE_DIR}
+  ${imgui_SOURCE_DIR}/backends
+  ${imgui_SOURCE_DIR}/include
+  ${OPENGL_INCLUDE_DIR}
+  ${SDL2_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME}_app PRIVATE ${PROJECT_NAME} imgui OpenGL::GL ${SDL2_LIBRARIES})
 
 if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
   include(CTest)

@@ -30,3 +30,4 @@ jobs:
         run: |
           git add .
           git commit -m "[bot] clang-format lint fixes" || echo "No changes to commit"
+          git push origin $(git rev-parse --abbrev-ref HEAD)
