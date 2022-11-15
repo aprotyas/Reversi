@@ -1,6 +1,7 @@
 #include <SDL.h>
 
 #include <iostream>
+#include <variant>
 
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
@@ -12,6 +13,14 @@
 #endif
 
 #include "reversi/reversi.hpp"
+
+class ReversiApp
+{
+using Canvas = std::variant<ReversiTui, ReversiGui>;
+public:
+  Canvas canvas;
+  Reversi reversi;
+};
 
 int main() {
   Reversi reversi;
