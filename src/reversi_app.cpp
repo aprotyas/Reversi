@@ -14,10 +14,10 @@
 
 #include "reversi/reversi.hpp"
 
-class ReversiApp
-{
-using Canvas = std::variant<ReversiTui, ReversiGui>;
-public:
+class ReversiApp {
+  using Canvas = std::variant<ReversiTui, ReversiGui>;
+
+ public:
   Canvas canvas;
   Reversi reversi;
 };
