@@ -50,7 +50,7 @@ target_include_directories(${PROJECT_NAME}_app PRIVATE
   ${SDL2_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME}_app PRIVATE ${PROJECT_NAME} imgui OpenGL::GL ${SDL2_LIBRARIES})
 
-configure_file(resources/hello_world.bmp ${CMAKE_CURRENT_BINARY_DIR}/resources/hello_world.bmp)
+configure_file(resources/x.bmp ${CMAKE_CURRENT_BINARY_DIR}/resources/x.bmp)
 
 add_executable(sdl src/sdl.cpp)
 set_target_properties(sdl PROPERTIES

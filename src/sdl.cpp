@@ -4,8 +4,8 @@
 #include <iostream>
 #include <memory>
 #include <optional>
+#include <utility>
 
-namespace {
 struct SdlDeleter {
   void operator()(SDL_Window* window) {
     if (window != nullptr) {
@@ -22,20 +22,40 @@ struct SdlDeleter {
 
 using WindowPtr = std::unique_ptr<SDL_Window, SdlDeleter>;
 using SurfacePtr = std::unique_ptr<SDL_Surface, SdlDeleter>;
-}  // namespace
 
-struct App {
-  WindowPtr window;
+class App {
+public:
+  App() = default;
+  ~App() = default;
+
+  explicit App(WindowPtr window) : window_ {std::move(window)} {}
+
+  App(const App& other) = delete;
+  App& operator=(const App& other) = delete;
+
+  App(App&& other) noexcept : window_ {std::move(other.window_)} {}
+  App& operator=(App&& other) noexcept {
+    window_ = std::move(other.window_);
+    return *this;
+  }
+
+  [[nodiscard]] const SDL_Window* window() const { return window_.get(); }
+  [[nodiscard]] SDL_Window* window() { return window_.get(); }
+  [[nodiscard]] const SDL_Surface* surface() const { return SDL_GetWindowSurface(window_.get()); }
+  [[nodiscard]] SDL_Surface* surface() { return SDL_GetWindowSurface(window_.get()); }
 
   static constexpr uint32_t screen_width = 640UL;
   static constexpr uint32_t screen_height = 480UL;
+
+private:
+  WindowPtr window_ = nullptr;
 };
 
 [[nodiscard]] std::optional<App> make_opt_sdl_app() {
-  if (SDL_Window* window = SDL_CreateWindow(
+  if (auto* window = SDL_CreateWindow(
           "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
           App::screen_width, App::screen_height, SDL_WINDOW_SHOWN)) {
-    return std::make_optional<App>({WindowPtr{window}});
+    return App{WindowPtr{window}};
   }
   std::cout << "SDL window could not be created! SDL_Error: " << SDL_GetError()
             << '\n';
@@ -43,7 +63,7 @@ struct App {
 }
 
 [[nodiscard]] std::optional<SurfacePtr> make_opt_demo_surface() {
-  if (SDL_Surface* surface = SDL_LoadBMP("resources/hello_world.bmp")) {
+  if (auto* surface = SDL_LoadBMP("resources/x.bmp")) {
     return {SurfacePtr{surface}};
   }
   std::cout << "SDL surface could not be created! SDL_Error: " << SDL_GetError()
@@ -65,10 +85,9 @@ int main() {
     std::exit(-1);
   }
 
-  if (std::optional<SurfacePtr> hello_world_surface = make_opt_demo_surface()) {
-    SDL_Surface* surface = SDL_GetWindowSurface(app.window.get());
-    SDL_BlitSurface(hello_world_surface->get(), nullptr, surface, nullptr);
-    SDL_UpdateWindowSurface(app.window.get());
+  SurfacePtr demo_surface = nullptr;
+  if (auto maybe_demo_surface = make_opt_demo_surface()) {
+    demo_surface = std::move(maybe_demo_surface.value());
   } else {
     std::exit(-1);
   }
@@ -81,6 +100,9 @@ int main() {
         quit = true;
       }
     }
+
+    SDL_BlitSurface(demo_surface.get(), nullptr, app.surface(), nullptr);
+    SDL_UpdateWindowSurface(app.window());
   }
 
   SDL_Quit();
