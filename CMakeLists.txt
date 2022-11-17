@@ -50,6 +50,17 @@ target_include_directories(${PROJECT_NAME}_app PRIVATE
   ${SDL2_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME}_app PRIVATE ${PROJECT_NAME} imgui OpenGL::GL ${SDL2_LIBRARIES})
 
+add_executable(sdl src/sdl.cpp)
+set_target_properties(sdl PROPERTIES
+  CXX_CLANG_TIDY clang-tidy -header-filter=${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp --config-file=${CMAKE_CURRENT_SOURCE_DIR}/.clang-tidy
+  CXX_EXTENSIONS OFF
+  CXX_STANDARD 17
+  CXX_STANDARD_REQUIRED ON
+  EXPORT_COMPILE_COMMANDS ON
+)
+target_include_directories(sdl PRIVATE ${SDL2_INCLUDE_DIRS})
+target_link_libraries(sdl PRIVATE ${SDL2_LIBRARIES})
+
 if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
   include(CTest)
 endif()
