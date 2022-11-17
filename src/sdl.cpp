@@ -20,9 +20,9 @@ struct SdlDeleter {
   }
 };
 
-using WindowPtr  = std::unique_ptr<SDL_Window, SdlDeleter>;
+using WindowPtr = std::unique_ptr<SDL_Window, SdlDeleter>;
 using SurfacePtr = std::unique_ptr<SDL_Surface, SdlDeleter>;
-}
+}  // namespace
 
 struct App {
   WindowPtr window;
@@ -46,7 +46,8 @@ struct App {
   if (SDL_Surface* surface = SDL_LoadBMP("resources/hello_world.bmp")) {
     return {SurfacePtr{surface}};
   }
-  std::cout << "SDL surface could not be created! SDL_Error: " << SDL_GetError() << '\n';
+  std::cout << "SDL surface could not be created! SDL_Error: " << SDL_GetError()
+            << '\n';
   return {};
 }
 
@@ -63,7 +64,7 @@ int main() {
   } else {
     std::exit(-1);
   }
-  
+
   if (std::optional<SurfacePtr> hello_world_surface = make_opt_demo_surface()) {
     SDL_Surface* surface = SDL_GetWindowSurface(app.window.get());
     SDL_BlitSurface(hello_world_surface->get(), nullptr, surface, nullptr);
