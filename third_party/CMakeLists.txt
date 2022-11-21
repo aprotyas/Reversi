@@ -33,3 +33,13 @@ target_include_directories(imgui
   ${SDL2_INCLUDE_DIRS})
 
 target_link_libraries(imgui PUBLIC OpenGL::GL ${SDL2_LIBRARIES} ${CMAKE_DL_LIBS})
+
+# serge-sans-paille/frozen
+FetchContent_Declare(
+  frozen
+  GIT_REPOSITORY    https://github.com/serge-sans-paille/frozen
+  GIT_TAG           1.1.1
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND     ""
+)
+FetchContent_MakeAvailable(frozen)

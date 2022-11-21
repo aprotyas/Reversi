@@ -50,8 +50,6 @@ target_include_directories(${PROJECT_NAME}_app PRIVATE
   ${SDL2_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME}_app PRIVATE ${PROJECT_NAME} imgui OpenGL::GL ${SDL2_LIBRARIES})
 
-configure_file(resources/x.bmp ${CMAKE_CURRENT_BINARY_DIR}/resources/x.bmp)
-
 add_executable(sdl src/sdl.cpp)
 set_target_properties(sdl PROPERTIES
   CXX_CLANG_TIDY clang-tidy -header-filter=${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp --config-file=${CMAKE_CURRENT_SOURCE_DIR}/.clang-tidy
@@ -61,7 +59,11 @@ set_target_properties(sdl PROPERTIES
   EXPORT_COMPILE_COMMANDS ON
 )
 target_include_directories(sdl PRIVATE ${SDL2_INCLUDE_DIRS})
-target_link_libraries(sdl PRIVATE ${SDL2_LIBRARIES})
+target_link_libraries(sdl PRIVATE ${SDL2_LIBRARIES} frozen::frozen)
+
+add_custom_command(TARGET sdl POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${CMAKE_SOURCE_DIR}/resources $<TARGET_FILE_DIR:sdl>/resources)
 
 if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
   include(CTest)
