@@ -12,13 +12,18 @@ jobs:
 
       - name: Install dependencies
         run: |
+          echo "Installing apt dependencies"
           sudo apt-get -y -qq update
           sudo apt-get -y --no-install-recommends install \
             build-essential \
             cmake \
+            libboost-dev \
             libopengl-dev \
             libsdl2-dev \
             ninja-build
+          echo "Installing SDL2_image v2.6.2"
+          curl -OL https://github.com/libsdl-org/SDL_image/releases/download/release-2.6.2/SDL2_image-2.6.2.tar.gz
+          tar -xzf SDL2_image-2.6.2.tar.gz && cd SDL2_image-2.6.2 && ./configure && sudo make all && sudo make install
 
       - name: Create build environment
         run: cmake -G Ninja -S . -B build -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
