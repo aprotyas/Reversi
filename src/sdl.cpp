@@ -1,8 +1,8 @@
 #include <SDL.h>
 #include <SDL2/SDL_image.h>
-#include <boost/scope_exit.hpp>
 #include <frozen/unordered_map.h>
 
+#include <boost/scope_exit.hpp>
 #include <cstdlib>
 #include <filesystem>
 #include <iostream>
@@ -31,11 +31,10 @@ struct SdlDeleter {
 using WindowPtr = std::unique_ptr<SDL_Window, SdlDeleter>;
 using SurfacePtr = std::unique_ptr<SDL_Surface, SdlDeleter>;
 
-namespace init_state
-{
-  bool sdl{false};
-  bool sdl_image{false};
-}
+namespace init_state {
+bool sdl{false};
+bool sdl_image{false};
+}  // namespace init_state
 
 class App {
  public:
@@ -92,12 +91,13 @@ class App {
 int main() {
   BOOST_SCOPE_EXIT(void) {
     if (init_state::sdl) {
-      SDL_Quit();      
+      SDL_Quit();
     }
     if (init_state::sdl_image) {
       IMG_Quit();
     }
-  } BOOST_SCOPE_EXIT_END
+  }
+  BOOST_SCOPE_EXIT_END
 
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError()
@@ -107,8 +107,8 @@ int main() {
   init_state::sdl = true;
 
   if ((IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) == 0) {
-    std::cerr << "SDL_image could not initialize! SDL_image error: " << IMG_GetError()
-              << '\n';
+    std::cerr << "SDL_image could not initialize! SDL_image error: "
+              << IMG_GetError() << '\n';
     return -1;
   }
   init_state::sdl_image = true;
