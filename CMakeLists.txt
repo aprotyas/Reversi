@@ -50,6 +50,8 @@ target_include_directories(${PROJECT_NAME}_app PRIVATE
   ${SDL2_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME}_app PRIVATE ${PROJECT_NAME} imgui OpenGL::GL ${SDL2_LIBRARIES})
 
+find_package(SDL2_image REQUIRED)
+find_package(Boost 1.74 REQUIRED)
 add_executable(sdl src/sdl.cpp)
 set_target_properties(sdl PROPERTIES
   CXX_CLANG_TIDY clang-tidy -header-filter=${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp --config-file=${CMAKE_CURRENT_SOURCE_DIR}/.clang-tidy
@@ -59,7 +61,7 @@ set_target_properties(sdl PROPERTIES
   EXPORT_COMPILE_COMMANDS ON
 )
 target_include_directories(sdl PRIVATE ${SDL2_INCLUDE_DIRS})
-target_link_libraries(sdl PRIVATE ${SDL2_LIBRARIES} frozen::frozen)
+target_link_libraries(sdl PRIVATE ${SDL2_LIBRARIES} SDL2_image::SDL2_image frozen::frozen Boost::boost)
 
 add_custom_command(TARGET sdl POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
