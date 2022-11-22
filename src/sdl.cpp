@@ -12,7 +12,7 @@
 
 namespace fs = std::filesystem;
 
-enum class KeyPressSurfaces { DEFAULT, UP, DOWN, LEFT, RIGHT, TOTAL };
+enum class KeyPressSurfaces { DEFAULT, UP, DOWN, LEFT, RIGHT };
 
 struct SdlDeleter {
   void operator()(SDL_Window* window) {
@@ -83,8 +83,19 @@ class App {
   return nullptr;
 }
 
+[[nodiscard]] SurfacePtr load_opt_optimized_surface(const fs::path& surface_path, const SDL_PixelFormat* format) {
+  if (auto maybe_surface = load_opt_surface(surface_path)) {
+    if (auto* optimized_surface = SDL_ConvertSurface(maybe_surface.get(), format, 0)) {
+      return SurfacePtr{optimized_surface};
+    }
+    std::cerr << "Unable to optimize surface " << surface_path
+              << "! SDL Error: " << SDL_GetError() << '\n';
+  }
+  return nullptr;
+}
+
 [[nodiscard]] std::optional<std::unordered_map<KeyPressSurfaces, SurfacePtr>>
-make_opt_surface_map() {
+make_opt_optimized_surface_map(const SDL_PixelFormat* format) {
   static constexpr frozen::unordered_map<KeyPressSurfaces, std::string_view, 5>
       surface_resource_map = {
           {KeyPressSurfaces::DEFAULT, "resources/press.bmp"},
@@ -96,7 +107,7 @@ make_opt_surface_map() {
 
   std::unordered_map<KeyPressSurfaces, SurfacePtr> surface_map;
   for (const auto [keypress, surface_path] : surface_resource_map) {
-    if (auto maybe_surface = load_opt_surface(fs::path{surface_path})) {
+    if (auto maybe_surface = load_opt_optimized_surface(fs::path{surface_path}, format)) {
       if (!surface_map
                .insert(std::make_pair(keypress, std::move(maybe_surface)))
                .second) {
@@ -121,7 +132,7 @@ int main() {
     std::exit(-1);
   }
 
-  auto maybe_surface_map = make_opt_surface_map();
+  const auto maybe_surface_map = make_opt_optimized_surface_map(maybe_app->surface()->format);
   if (!maybe_surface_map) {
     std::exit(-1);
   }
