@@ -14,10 +14,22 @@
 
 namespace fs = std::filesystem;
 
-struct SdlDeleter {
+namespace init_state {
+bool sdl{false};
+bool sdl_image{false};
+}  // namespace init_state
+
+namespace sdl {
+struct Deleter {
   void operator()(SDL_Window* window) {
     if (window != nullptr) {
       SDL_DestroyWindow(window);
+    }
+  }
+
+  void operator()(SDL_Renderer* renderer) {
+    if (renderer != nullptr) {
+      SDL_DestroyRenderer(renderer);
     }
   }
 
@@ -26,29 +38,83 @@ struct SdlDeleter {
       SDL_FreeSurface(surface);
     }
   }
+
+  void operator()(SDL_Texture* texture) {
+    if (texture != nullptr) {
+      SDL_DestroyTexture(texture);
+    }
+  }
 };
 
-using WindowPtr = std::unique_ptr<SDL_Window, SdlDeleter>;
-using SurfacePtr = std::unique_ptr<SDL_Surface, SdlDeleter>;
+using WindowPtr = std::unique_ptr<SDL_Window, sdl::Deleter>;
+using RendererPtr = std::unique_ptr<SDL_Renderer, sdl::Deleter>;
+using SurfacePtr = std::unique_ptr<SDL_Surface, sdl::Deleter>;
+using TexturePtr = std::unique_ptr<SDL_Texture, sdl::Deleter>;
 
-namespace init_state {
-bool sdl{false};
-bool sdl_image{false};
-}  // namespace init_state
+[[nodiscard]] sdl::WindowPtr create_window(
+    const std::string& title, const int xpos, const int ypos, const int width,
+    const int height, const SDL_WindowFlags window_options) {
+  if (auto* window = SDL_CreateWindow(title.c_str(), xpos, ypos, width, height,
+                                      window_options)) {
+    return sdl::WindowPtr{window};
+  }
+  std::cerr << "SDL window could not be created! SDL_Error: " << SDL_GetError()
+            << '\n';
+  return nullptr;
+}
+
+[[nodiscard]] sdl::RendererPtr create_renderer(
+    SDL_Window& window,
+    const SDL_RendererFlags renderer_options = SDL_RENDERER_ACCELERATED) {
+  if (auto* renderer = SDL_CreateRenderer(&window, -1, renderer_options)) {
+    const int white = 0xFF;
+    SDL_SetRenderDrawColor(renderer, white, white, white, white);
+    return sdl::RendererPtr{renderer};
+  }
+  return nullptr;
+}
+
+[[nodiscard]] sdl::SurfacePtr load_surface(const fs::path& surface_path) {
+  if (auto* surface = IMG_Load(surface_path.c_str())) {
+    return sdl::SurfacePtr{surface};
+  }
+  std::cerr << "Unable to load image " << surface_path
+            << "! SDL Error: " << SDL_GetError() << '\n';
+  return nullptr;
+}
+
+[[nodiscard]] sdl::TexturePtr load_texture(SDL_Renderer& renderer,
+                                           const fs::path& texture_path) {
+  if (auto surface = sdl::load_surface(texture_path)) {
+    if (auto* texture =
+            SDL_CreateTextureFromSurface(&renderer, surface.get())) {
+      return sdl::TexturePtr{texture};
+    }
+  }
+  std::cerr << "Unable to load texture " << texture_path
+            << "! SDL Error: " << SDL_GetError() << '\n';
+  return nullptr;
+}
+}  // namespace sdl
 
 class App {
  public:
-  App() = default;
+  App() = delete;
   ~App() = default;
 
-  explicit App(WindowPtr window) : window_{std::move(window)} {}
+  explicit App(sdl::WindowPtr window = nullptr,
+               sdl::RendererPtr renderer = nullptr)
+      : window_{std::move(window)}, renderer_{std::move(renderer)} {}
 
   App(const App& other) = delete;
   App& operator=(const App& other) = delete;
 
-  App(App&& other) noexcept : window_{std::move(other.window_)} {}
+  App(App&& other) noexcept
+      : window_{std::move(other.window_)},
+        renderer_{std::move(other.renderer_)} {}
   App& operator=(App&& other) noexcept {
     window_ = std::move(other.window_);
+    renderer_ = std::move(other.renderer_);
     return *this;
   }
 
@@ -60,32 +126,31 @@ class App {
   [[nodiscard]] SDL_Surface* surface() {
     return SDL_GetWindowSurface(window_.get());
   }
+  [[nodiscard]] const SDL_Renderer* renderer() const { return renderer_.get(); }
+  [[nodiscard]] SDL_Renderer* renderer() { return renderer_.get(); }
 
   static constexpr uint32_t screen_width = 640UL;
   static constexpr uint32_t screen_height = 480UL;
 
  private:
-  WindowPtr window_ = nullptr;
+  sdl::WindowPtr window_ = nullptr;
+  sdl::RendererPtr renderer_ = nullptr;
 };
 
-[[nodiscard]] std::optional<App> make_opt_sdl_app() {
-  if (auto* window = SDL_CreateWindow(
-          "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-          App::screen_width, App::screen_height, SDL_WINDOW_SHOWN)) {
-    return App{WindowPtr{window}};
+[[nodiscard]] std::optional<App> make_app(
+    const std::string& title, const int xpos = SDL_WINDOWPOS_UNDEFINED,
+    const int ypos = SDL_WINDOWPOS_UNDEFINED,
+    const SDL_WindowFlags window_options = SDL_WINDOW_SHOWN) {
+  sdl::WindowPtr window = sdl::create_window(
+      title, xpos, ypos, App::screen_width, App::screen_height, window_options);
+  if (window == nullptr) {
+    return {};
   }
-  std::cerr << "SDL window could not be created! SDL_Error: " << SDL_GetError()
-            << '\n';
-  return {};
-}
-
-[[nodiscard]] SurfacePtr load_opt_surface(const fs::path& surface_path) {
-  if (auto* surface = IMG_Load(surface_path.c_str())) {
-    return SurfacePtr{surface};
+  sdl::RendererPtr renderer = sdl::create_renderer(*window);
+  if (renderer == nullptr) {
+    return {};
   }
-  std::cerr << "Unable to load image " << surface_path
-            << "! SDL Error: " << SDL_GetError() << '\n';
-  return nullptr;
+  return App{std::move(window), std::move(renderer)};
 }
 
 int main() {
@@ -106,6 +171,10 @@ int main() {
   }
   init_state::sdl = true;
 
+  if (SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1") == SDL_FALSE) {
+    std::cerr << "Warning: Linear texture filtering not enabled!";
+  }
+
   if ((IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) == 0) {
     std::cerr << "SDL_image could not initialize! SDL_image error: "
               << IMG_GetError() << '\n';
@@ -113,17 +182,13 @@ int main() {
   }
   init_state::sdl_image = true;
 
-  std::optional<App> maybe_app = make_opt_sdl_app();
+  std::optional<App> maybe_app = make_app("SDL tutorial");
   if (!maybe_app) {
     return -1;
   }
 
-  if (SurfacePtr png_surface{load_opt_surface("resources/loaded.png")}) {
-    SDL_BlitSurface(png_surface.get(), nullptr, maybe_app->surface(), nullptr);
-    SDL_UpdateWindowSurface(maybe_app->window());
-  } else {
-    return -1;
-  }
+  sdl::TexturePtr texture =
+      sdl::load_texture(*(maybe_app->renderer()), "resources/texture.png");
 
   SDL_Event e;
   bool quit = false;
@@ -133,5 +198,9 @@ int main() {
         quit = true;
       }
     }
+
+    SDL_RenderClear(maybe_app->renderer());
+    SDL_RenderCopy(maybe_app->renderer(), texture.get(), nullptr, nullptr);
+    SDL_RenderPresent(maybe_app->renderer());
   }
 }
