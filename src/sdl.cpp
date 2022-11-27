@@ -5,10 +5,12 @@
 #include <boost/scope_exit.hpp>
 #include <cstdlib>
 #include <filesystem>
+#include <functional>
 #include <iostream>
 #include <memory>
 #include <optional>
 #include <string_view>
+#include <type_traits>
 #include <unordered_map>
 #include <utility>
 
@@ -67,8 +69,6 @@ using TexturePtr = std::unique_ptr<SDL_Texture, sdl::Deleter>;
     SDL_Window& window,
     const SDL_RendererFlags renderer_options = SDL_RENDERER_ACCELERATED) {
   if (auto* renderer = SDL_CreateRenderer(&window, -1, renderer_options)) {
-    const int white = 0xFF;
-    SDL_SetRenderDrawColor(renderer, white, white, white, white);
     return sdl::RendererPtr{renderer};
   }
   return nullptr;
@@ -94,6 +94,47 @@ using TexturePtr = std::unique_ptr<SDL_Texture, sdl::Deleter>;
   std::cerr << "Unable to load texture " << texture_path
             << "! SDL Error: " << SDL_GetError() << '\n';
   return nullptr;
+}
+
+enum class Color : uint8_t {
+  white,
+  black,
+  red,
+};
+
+namespace {
+constexpr int white = 0xFF;
+constexpr int black = 0x00;
+}  // namespace
+
+namespace std {
+[[noreturn]] inline void unreachable() {
+#ifdef __GNUC__
+  __builtin_unreachable();
+#elif defined _MSC_VER
+  __assume(false);
+#endif
+}
+}  // namespace std
+
+void set_render_draw_color(SDL_Renderer& renderer, const sdl::Color color) {
+  const auto set_color_impl = [&renderer](const int r, const int g,
+                                          const int b) {
+    SDL_SetRenderDrawColor(&renderer, r, g, b, white);
+  };
+  switch (color) {
+    case sdl::Color::white:
+      set_color_impl(white, white, white);
+      break;
+    case sdl::Color::black:
+      set_color_impl(black, black, black);
+      break;
+    case sdl::Color::red:
+      set_color_impl(white, black, black);
+      break;
+    default:
+      __builtin_unreachable();
+  }
 }
 }  // namespace sdl
 
@@ -187,9 +228,6 @@ int main() {
     return -1;
   }
 
-  sdl::TexturePtr texture =
-      sdl::load_texture(*(maybe_app->renderer()), "resources/texture.png");
-
   SDL_Event e;
   bool quit = false;
   while (!quit) {
@@ -199,8 +237,14 @@ int main() {
       }
     }
 
+    sdl::set_render_draw_color(*(maybe_app->renderer()), sdl::Color::red);
     SDL_RenderClear(maybe_app->renderer());
-    SDL_RenderCopy(maybe_app->renderer(), texture.get(), nullptr, nullptr);
+
+    SDL_Rect fill_rect{App::screen_width / 4, App::screen_height / 4,
+                       App::screen_width / 2, App::screen_height / 2};
+    sdl::set_render_draw_color(*(maybe_app->renderer()), sdl::Color::white);
+    SDL_RenderFillRect(maybe_app->renderer(), &fill_rect);
+
     SDL_RenderPresent(maybe_app->renderer());
   }
 }
