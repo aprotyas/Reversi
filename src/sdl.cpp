@@ -133,7 +133,7 @@ void set_render_draw_color(SDL_Renderer& renderer, const sdl::Color color) {
       set_color_impl(white, black, black);
       break;
     default:
-      __builtin_unreachable();
+      std::unreachable();
   }
 }
 }  // namespace sdl
