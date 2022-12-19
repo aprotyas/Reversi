@@ -18,7 +18,7 @@ jobs:
 
       - name: Run clang-format
         shell: bash
-        run: bash format.sh
+        run: bash scripts/format.sh
 
       - name: Set up git config
         run: |
