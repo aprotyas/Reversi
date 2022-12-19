@@ -11,4 +11,7 @@ std::ostream& operator<<(std::ostream& os, const Othello& othello) {
 }
 
 const Board& Othello::board() const { return m_board; }
+
 std::size_t Othello::round() const { return m_round; }
+
+bool Othello::game_over() const { return m_board.data().size() == Board::size; }

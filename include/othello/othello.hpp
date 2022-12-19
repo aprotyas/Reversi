@@ -11,6 +11,7 @@ class Othello {
  public:
   const Board& board() const;
   std::size_t round() const;
+  bool game_over() const;
 
   static constexpr const std::size_t num_players{2UL};
 
