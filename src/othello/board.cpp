@@ -1,16 +1,17 @@
 #include "othello/board.hpp"
 
+#include <algorithm>
 #include <cstddef>
 #include <iostream>
 #include <vector>
 
 #include "othello/othello.hpp"
-#include "othello/utils.hpp"
 
-Board::Board()
-    : m_data{std::vector<std::vector<Disk>>(
-          Board::size, std::vector<Disk>(Board::size, Disk::Empty))} {
+Board::Board() {
   // initialize
+  std::for_each(m_data.begin(), m_data.end(),
+                [](auto& row) { row.fill(Disk::Empty); });
+
   const auto start{Board::size / 2 - 1};
   for (std::size_t row_idx{start}, counter{};
        row_idx < start + Othello::num_players; ++row_idx, ++counter) {
@@ -27,8 +28,13 @@ Board::Board()
   }
 }
 
-std::vector<std::vector<Disk>>& Board::data() { return m_data; }
-const std::vector<std::vector<Disk>>& Board::data() const { return m_data; }
+std::array<std::array<Disk, Board::size>, Board::size>& Board::data() {
+  return m_data;
+}
+const std::array<std::array<Disk, Board::size>, Board::size>& Board::data()
+    const {
+  return m_data;
+}
 
 Disk& Board::operator()(const std::size_t row, const std::size_t col) {
   return m_data.at(row).at(col);
@@ -40,7 +46,10 @@ const Disk& Board::operator()(const std::size_t row,
 
 std::ostream& operator<<(std::ostream& os, const Board& board) {
   for (const auto& row : board.data()) {
-    os << row << '\n';
+    for (const auto& elem : row) {
+      os << elem << ' ';
+    }
+    os << '\n';
   }
   return os;
 }

@@ -1,8 +1,8 @@
 #pragma once
 
+#include <array>
 #include <cstddef>
 #include <iostream>
-#include <vector>
 
 #include "othello/disk.hpp"
 
@@ -11,14 +11,14 @@ class Board {
   Board();
 
   static constexpr const std::size_t size{8UL};
-  std::vector<std::vector<Disk>>& data();
-  const std::vector<std::vector<Disk>>& data() const;
+  std::array<std::array<Disk, size>, size>& data();
+  const std::array<std::array<Disk, size>, size>& data() const;
 
   Disk& operator()(const std::size_t row, const std::size_t col);
   const Disk& operator()(const std::size_t row, const std::size_t col) const;
 
  private:
-  std::vector<std::vector<Disk>> m_data;
+  std::array<std::array<Disk, size>, size> m_data;
 };
 
 std::ostream& operator<<(std::ostream& os, const Board& board);
