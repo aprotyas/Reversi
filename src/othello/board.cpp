@@ -19,9 +19,9 @@ Board::Board() {
          ++col_idx, ++counter) {
       Disk output;
       if (counter % Othello::num_players == 0) {
-        output = Disk::White;
+        output = Disk::Light;
       } else {
-        output = Disk::Black;
+        output = Disk::Dark;
       }
       m_data[row_idx][col_idx] = output;
     }

@@ -5,13 +5,13 @@
 std::ostream& operator<<(std::ostream& os, const Disk disk) {
   switch (disk) {
     case Disk::Empty:
-      os << ' ';
+      os << '-';
       break;
-    case Disk::White:
-      os << "\u25e6";
+    case Disk::Light:
+      os << 'X';
       break;
-    case Disk::Black:
-      os << "\u00b7";
+    case Disk::Dark:
+      os << '#';
       break;
   }
   return os;
