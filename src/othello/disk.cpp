@@ -1,4 +1,4 @@
-#include "reversi/disk.hpp"
+#include "othello/disk.hpp"
 
 #include <iostream>
 

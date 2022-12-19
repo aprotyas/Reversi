@@ -1,10 +1,10 @@
-#include "reversi/board.hpp"
+#include "othello/board.hpp"
 
 #include <cstddef>
 #include <iostream>
 #include <vector>
 
-#include "reversi/utils.hpp"
+#include "othello/utils.hpp"
 
 Board::Board()
     : m_data{std::vector<std::vector<Disk>>(

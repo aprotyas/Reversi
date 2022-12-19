@@ -2,7 +2,7 @@
 
 #include <cstddef>
 
-#include "reversi/board.hpp"
+#include "othello/board.hpp"
 
 class TestBoard : public ::testing::Test {
  protected:

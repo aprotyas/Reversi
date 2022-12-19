@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.21)
 
-project(reversi
+project(othello
   VERSION 0.1
-  DESCRIPTION "A C++ implementation of the 2-player board game, Reversi"
-  HOMEPAGE_URL "https://github.com/aprotyas/reversi"
+  DESCRIPTION "A C++ implementation of the 2-player board game, Othello"
+  HOMEPAGE_URL "https://github.com/aprotyas/othello"
   LANGUAGES CXX
 )
 
@@ -11,7 +11,7 @@ set(${PROJECT_NAME}_srcs
   src/${PROJECT_NAME}/board.cpp
   src/${PROJECT_NAME}/disk.cpp
   src/${PROJECT_NAME}/player.cpp
-  src/${PROJECT_NAME}/reversi.cpp
+  src/${PROJECT_NAME}/othello.cpp
 )
 add_library(${PROJECT_NAME} ${${PROJECT_NAME}_srcs})
 target_include_directories(${PROJECT_NAME} PUBLIC

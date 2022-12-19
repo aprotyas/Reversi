@@ -11,11 +11,11 @@
 #include <SDL_opengl.h>
 #endif
 
-#include "reversi/reversi.hpp"
+#include "othello/othello.hpp"
 
 int main() {
-  Reversi reversi;
-  std::cout << reversi << '\n';
+  Othello othello;
+  std::cout << othello << '\n';
   // Setup SDL
   // (Some versions of SDL before <2.0.10 appears to have performance/stalling
   // issues on a minority of Windows systems, depending on whether
