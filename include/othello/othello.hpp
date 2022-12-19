@@ -9,13 +9,11 @@
 
 class Othello {
  public:
-  Othello() = default;
-  ~Othello() = default;
   const Board& board() const;
 
- private:
   static constexpr const std::size_t num_players{2UL};
 
+ private:
   Board m_board;
   std::array<Player, num_players> m_players;
 };

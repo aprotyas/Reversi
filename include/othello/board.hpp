@@ -10,7 +10,7 @@ class Board {
  public:
   Board();
 
-  constexpr static std::size_t size() { return m_size; }
+  static constexpr const std::size_t size{8UL};
   std::vector<std::vector<Disk>>& data();
   const std::vector<std::vector<Disk>>& data() const;
 
@@ -19,7 +19,6 @@ class Board {
 
  private:
   std::vector<std::vector<Disk>> m_data;
-  constexpr static std::size_t m_size = 8;
 };
 
 std::ostream& operator<<(std::ostream& os, const Board& board);
