@@ -10,12 +10,14 @@
 class Othello {
  public:
   const Board& board() const;
+  std::size_t round() const;
 
   static constexpr const std::size_t num_players{2UL};
 
  private:
   Board m_board;
   std::array<Player, num_players> m_players;
+  std::size_t m_round{};
 };
 
 std::ostream& operator<<(std::ostream& os, const Othello& othello);
