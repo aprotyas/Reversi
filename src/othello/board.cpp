@@ -39,7 +39,6 @@ const Disk& Board::operator()(const std::size_t row,
 }
 
 std::ostream& operator<<(std::ostream& os, const Board& board) {
-  os << "Board shape: " << Board::size << " x " << Board::size << '\n';
   for (const auto& row : board.data()) {
     os << row << '\n';
   }
