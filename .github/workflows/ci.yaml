@@ -21,7 +21,8 @@ jobs:
             ninja-build
 
       - name: Create build environment
-        run: cmake -G Ninja -S . -B build -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+        # Hard cording the TUI build for now
+        run: cmake -G Ninja -S . -B build -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DBUILD_APP_VERSION=TUI
 
       - name: Build
         run: cmake --build build
