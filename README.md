@@ -1,6 +1,13 @@
 # Othello
 A 2-player implementation of the popular board game Othello (more generally known as Reversi) in C++.
 
+## Dependencies
+
+- CMake: 3.22+
+- SDL 2.0
+- OpenGL 3.x+
+- clang-format 11+
+
 ## Build/run instructions
 
 I've used GCC 11 for local development, so YMMV for building with other compilers.
@@ -13,3 +20,9 @@ cmake --build build --target othello
 # Run
 ./build/othello
 ```
+
+## Commit instructions
+
+`scripts/apply-format` is a formatting script that formats code in this repository using the `clang-format` utility.
+Please use this script either on its own or as a pre-commit hook (install using `./scripts/git-pre-commit-format install`) to fix formatting issues before committing code.
+Future iterations of CI will fail in a formatting check step otherwise.
