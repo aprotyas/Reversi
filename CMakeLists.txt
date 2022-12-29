@@ -1,3 +1,10 @@
+cmake_minimum_required(VERSION 3.22)
+project(othello
+  VERSION 0.1
+  DESCRIPTION "A C++ implementation of the 2-player board game, Othello"
+  HOMEPAGE_URL "https://github.com/aprotyas/othello"
+  LANGUAGES CXX
+)
 
 find_package(SDL2 REQUIRED)
 find_package(OpenGL REQUIRED)
