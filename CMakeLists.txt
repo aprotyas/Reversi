@@ -30,3 +30,10 @@ target_link_libraries(${PROJECT_NAME}_app
   OpenGL::GL
   ${SDL2_LIBRARIES}
 )
+
+if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+  include(CTest)
+endif()
+if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME} AND BUILD_TESTING)
+  add_subdirectory(test)
+endif()

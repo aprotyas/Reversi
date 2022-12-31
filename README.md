@@ -10,7 +10,7 @@ A 2-player implementation of the popular board game Othello (more generally know
 - OpenGL 3.x+
 - clang-format 11+
 
-## Build/run instructions
+## Build/run/test instructions
 
 I've used GCC 11 for local development, so YMMV for building with other compilers.
 
@@ -19,6 +19,8 @@ I've used GCC 11 for local development, so YMMV for building with other compiler
 cmake -G Ninja -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 # Build
 cmake --build build --target othello
+# Test
+ctest --test-dir build/test
 # Run
 ./build/othello
 ```
