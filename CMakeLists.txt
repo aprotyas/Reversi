@@ -6,6 +6,9 @@ project(othello
   LANGUAGES CXX
 )
 
+# Boost.Outcome
+find_package(fmt REQUIRED)
+find_package(Boost 1.74 REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(OpenGL REQUIRED)
 add_subdirectory(third_party)
@@ -21,6 +24,8 @@ set_target_properties(${PROJECT_NAME}_app PROPERTIES
 )
 target_link_libraries(${PROJECT_NAME}_app
   PRIVATE
+  Boost::boost
+  fmt::fmt
   imgui
   OpenGL::GL
   ${SDL2_LIBRARIES}
