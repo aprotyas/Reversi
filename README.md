@@ -4,7 +4,7 @@ A 2-player implementation of the popular board game Othello (more generally know
 ## Dependencies
 
 - Boost: 1.74.0+
-- fmtlib/fmt: 9.1.0+
+- fmtlib/fmt: 8.1.0+
 - CMake: 3.22+
 - SDL 2.0
 - OpenGL 3.x+
