@@ -1,6 +1,7 @@
 # ImGui integration
 include(FetchContent)
 
+# Set empty build/configure commands since ImGui is not a CMake project
 FetchContent_Declare(
   imgui
   GIT_REPOSITORY    https://github.com/ocornut/imgui.git
@@ -14,6 +15,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(imgui)
 
 add_library(imgui STATIC
+  EXCLUDE_FROM_ALL 
   ${imgui_SOURCE_DIR}/imgui_draw.cpp
   ${imgui_SOURCE_DIR}/imgui_tables.cpp
   ${imgui_SOURCE_DIR}/imgui_widgets.cpp
