@@ -11,127 +11,18 @@
 #include <SDL2/SDL_opengl.h>
 #endif
 
+#include "wrappers/imgui.hpp"
+#include "wrappers/sdl_gl.hpp"
+#include "wrappers/wrappers.hpp"
+
 #include <chrono>
 #include <cstdio>
 #include <iostream>
 #include <memory>
+#include <string>
 #include <string_view>
-#include <tuple>
 
 using namespace std::chrono_literals;
-namespace outcome = BOOST_OUTCOME_V2_NAMESPACE;
-
-namespace wrappers {
-struct Deleter {
-  void operator()(SDL_Window *window) {
-    if (window != nullptr) {
-      std::cout << "SDL_DestroyWindow()\n";
-      SDL_DestroyWindow(window);
-    }
-  }
-};
-
-namespace sdl {
-using WindowPtr = std::unique_ptr<SDL_Window, wrappers::Deleter>;
-
-[[nodiscard]] outcome::result<WindowPtr, std::string_view>
-create_window(const std::string &title, const int xpos, const int ypos,
-              const int width, const int height,
-              const SDL_WindowFlags window_options) {
-  if (auto *window = SDL_CreateWindow(title.c_str(), xpos, ypos, width, height,
-                                      window_options)) {
-    return WindowPtr{window};
-  }
-  return {SDL_GetError()};
-}
-
-[[nodiscard]] outcome::result<void, std::string_view> init() {
-  if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-    return {SDL_GetError()};
-  }
-  return outcome::success();
-}
-
-namespace gl {
-struct Context {
-  Context(const Context &) = delete;
-  Context &operator=(const Context &) = delete;
-  Context(Context &&) = delete;
-  Context &operator=(Context &&) = delete;
-
-  explicit Context(SDL_GLContext &&context) : context_{context} {}
-
-  ~Context() {
-    std::cout << "SDL_GL_DeleteContext()\n";
-    SDL_GL_DeleteContext(context_);
-  }
-
-  [[nodiscard]] SDL_GLContext get() const { return context_; }
-
-private:
-  SDL_GLContext context_;
-};
-
-constexpr std::string_view glsl_version() {
-#ifdef IMGUI_IMPL_OPENGL_ES2
-  // GL ES 2.0 + GLSL 100
-  return "#version 100";
-#elif defined(__APPLE__)
-  // GL 3.2 Core + GLSL 150
-  return "#version 150";
-#else
-  // GL 3.0 + GLSL 130
-  return "#version 130";
-#endif
-}
-
-[[nodiscard]] outcome::result<void, std::string_view>
-make_current(SDL_Window *window, SDL_GLContext gl_context) {
-  if (SDL_GL_MakeCurrent(window, gl_context) == 0) {
-    return outcome::success();
-  }
-  return {SDL_GetError()};
-}
-
-[[nodiscard]] outcome::result<void, std::string_view>
-set_swap_interval(const int interval) {
-  if (SDL_GL_SetSwapInterval(interval) == -1) {
-    return {SDL_GetError()};
-  }
-  return outcome::success();
-}
-
-void context_version_init() {
-// Decide GL+GLSL versions
-#ifdef IMGUI_IMPL_OPENGL_ES2
-  // GL ES 2.0 + GLSL 100
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-#elif defined(__APPLE__)
-  // GL 3.2 Core + GLSL 150
-  SDL_GL_SetAttribute(
-      SDL_GL_CONTEXT_FLAGS,
-      SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG); // Always required on Mac
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-#else
-  // GL 3.0 + GLSL 130
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-#endif
-}
-} // namespace gl
-} // namespace sdl
-
-namespace imgui {
-void text(const std::string &str) { ImGui::TextUnformatted(str.c_str()); }
-} // namespace imgui
-} // namespace wrappers
 
 int main() {
   // Setup SDL
@@ -140,10 +31,7 @@ int main() {
     std::cerr << init_result.error() << '\n';
     return -1;
   }
-  BOOST_SCOPE_EXIT(void) {
-    std::cout << "SDL_Quit()\n";
-    SDL_Quit();
-  }
+  BOOST_SCOPE_EXIT(void) { SDL_Quit(); }
   BOOST_SCOPE_EXIT_END
 
   wrappers::sdl::gl::context_version_init();
@@ -185,14 +73,12 @@ int main() {
     return -1;
   }
 
-  // Setup Dear ImGui context
+  // Setup Dear ImGui context and platform/renderer backends
   IMGUI_CHECKVERSION();
   if (ImGui::CreateContext() == nullptr) {
     std::cerr << "ImGui context creation failed" << '\n';
     return -1;
   }
-
-  // Setup Platform/Renderer backends
   if (!ImGui_ImplSDL2_InitForOpenGL(window.get(), gl_context.get())) {
     std::cerr << "ImGui SDL backend init failed" << '\n';
     return -1;
@@ -203,11 +89,8 @@ int main() {
   }
 
   BOOST_SCOPE_EXIT(void) {
-    std::cout << "ImGui_ImplOpenGL3_Shutdown()\n";
     ImGui_ImplOpenGL3_Shutdown();
-    std::cout << "ImGui_ImplSDL2_Shutdown()\n";
     ImGui_ImplSDL2_Shutdown();
-    std::cout << "ImGui::DestroyContext()\n";
     ImGui::DestroyContext();
   }
   BOOST_SCOPE_EXIT_END
